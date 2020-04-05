@@ -1,0 +1,22 @@
+{
+    "name": "roman/mikro_framework",
+    "description": "some simple functionality of real frameworks",
+    "type": "framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Roman-Ast",
+            "email": "roman_planeta@mail.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"App\\": "src/"},
+        "files": [
+            "src/Renderer.php",
+            "src/Template.php",
+            "src/Response.php"
+          ]
+      },
+    "minimum-stability": "dev",
+    "require": {}
+}

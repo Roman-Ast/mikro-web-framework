@@ -1,0 +1,10 @@
+<h1>Show all users</h1>
+
+<a href="users/new">Create new user</a>
+<ul>
+    <?php foreach ($users as $user): ?>
+        <li>
+            <a href="/users/<?= $user['id']?>"><?= $user['name'] ?></a>
+        </li>  
+    <?php endforeach?>
+</ul>
