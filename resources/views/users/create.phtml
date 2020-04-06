@@ -10,7 +10,7 @@
         <br>
 
         <!-- BEGIN (write your solution here) -->
-        <form action="/users" method="post">
+        <form action="/users" method="post" enctype="multipart/form-data">
             <div>
                 <b>Email</b>
                 <input type="text" name="user[email]" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
@@ -33,7 +33,10 @@
 
             <div>
                 Avatar
-                <input type="text" name="user[avatar]" value="<?= htmlspecialchars($user['avatar'] ?? '') ?>">
+                <input type="file" name="user[avatar]">
+                <?php if (isset($errors['avatar'])) : ?>
+                    <div style="color: red"><?= $errors['avatar'] ?></div>
+                <?php endif ?>
             </div>
             
             <br>

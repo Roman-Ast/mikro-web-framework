@@ -6,6 +6,7 @@ require 'vendor/autoload.php';
 
 use function App\Renderer\render;
 use function App\response;
+use App\FilesUpload;
 
 $app = new Application();
 $DBusers = new DBimmitation\Users();
@@ -83,16 +84,22 @@ $app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
         $errors['password_confirmation'] = "Passwords doesn`t matches";
     } 
 
+    //file uploading
+    $path = FilesUpload::upload('user', 'avatar', 'images/user_avatars');
+    if (!$path) {
+        $errors['avatar'] = 'Something went wrong, try later...';
+    } else {
+        $user['avatar'] = $path;
+    }
+    
     if (empty($errors)) {
         $DBusers->add($user);
-        return response()->redirect('/');
+        return response()->redirect('/users');
     } else {
         return response(render('users/create', ['user' => $user, 'errors' => $errors]))
             ->withStatus(422);
     }
 });
-
-
 
 
 $app->run();

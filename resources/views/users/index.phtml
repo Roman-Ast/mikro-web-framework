@@ -4,7 +4,11 @@
 <ul>
     <?php foreach ($users as $user): ?>
         <li>
-            <a href="/users/<?= $user['id']?>"><?= $user['name'] ?></a>
+            <div style="">
+            <p><?= $_SERVER['DOCUMENT_ROOT'].'/src/storage/'.$user['avatar'] ?></p>
+                <a href="/users/<?= $user['id']?>"><?= $user['name'] ?></a>
+                <div style="width:70px;"><img src="<?= '/src/storage/'.$user['avatar'] ?>" style="width:100%;height:auto;"></div>
+            </div>
         </li>  
     <?php endforeach?>
 </ul>
