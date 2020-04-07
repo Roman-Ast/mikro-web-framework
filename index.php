@@ -66,7 +66,16 @@ $app->get('/users/:id', function ($meta, $params, $attributes) use($DBusers) {
 });
 
 $app->get('/articles', function ($params) {
-    return render('articles/index');
+    session_start();
+    if ($_SESSION['user']) {
+        return response(render('articles/index', ['user' => $_SESSION['user']]));
+    }
+    return response(render('articles/index'));
+});
+
+$app->get('/articles/create', function ($params) {
+    session_start();
+    return response(render('articles/create', ['user' => $_SESSION['user']]));
 });
 
 $app->get('/articles/:id', function ($params, $arguments) {
@@ -80,7 +89,7 @@ $app->get('/logout', function ($params, $arguments) {
 });
 
 //POST 
-$app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
+$app->post('/register', function ($meta, $params, $attributes) use($DBusers) {
     $user = $params['user'];
     $errors = [];
 
@@ -109,9 +118,6 @@ $app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
     } 
 
     //file uploading
-    if (!$user['avatar']) {
-
-    }
     $path = FilesUpload::upload('user', 'avatar', 'images/user_avatars');
     
     if (!$path) {
@@ -121,10 +127,15 @@ $app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
     }
 
     if (empty($errors)) {
+        //password hashing
+        $hashedPass = password_hash($user['password'], PASSWORD_BCRYPT);
+        $user['password'] = $hashedPass;
+
         $DBusers->add($user);
         session_start();
         $_SESSION['user'] = $user;
-        $_SESSION['flash_message'] = "Добро пожаловать, Вы вошли как " . $user['name'];
+        $_SESSION['flash_message'] = "Добро пожаловать, Вы были успешно зарегестрирoваны";
+        
         return response()->redirect('/');
     } else {
         return response(render('auth/register', ['user' => $user, 'errors' => $errors]))
@@ -139,7 +150,7 @@ $app->post('/login', function ($meta, $params, $attributes) use($DBusers) {
 
     $users = $DBusers->getAllUsers();
     $authenticatedUser = array_reduce($users, function($acc, $user) use($email, $pass) {
-        if ($user['email'] === $email && $user['password'] === $pass) {
+        if ($user['email'] === $email && password_verify($pass, $user['password'])) {
             $acc = $user;
             return $acc;
         }
@@ -158,6 +169,30 @@ $app->post('/login', function ($meta, $params, $attributes) use($DBusers) {
     
 });
 
+$app->post('/articles', function($meta, $params, $attributes) {
+    $title = $params['title'];
+    $body = $params['body'];
+    $author = $params['author'];
+    $hashTags = $params['tags'];
+    $errors = [];
+    
+    //validation
+    if (strlen($title) > 20) {
+        $errors['title'] = 'заголовок не может быть длиннее 20 символов';
+    } else if (strlen($body) < 200) {
+        $errors['body'] = 'статья не может содержать менее 200 символов';
+    } else if (!$title) {
+        $errors['title'] = 'Заголовок не может быть пустым';
+    } else if (!$hashTags) {
+        $errors['title'] = 'Заголовок не может быть пустым';
+    }
 
+    if (empty($errors)) {
+        return response()->redirect('/articles/index');
+    } else {
+        $errors['auth'] = 'Введены неверные логин и/или пароль';
+        return response(render('auth/login', ['errors' => $errors]))->withStatus(422);
+    }
+});
 
 $app->run();

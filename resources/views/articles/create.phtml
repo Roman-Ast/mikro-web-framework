@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main page</title>
+    <title>Создание статьи</title>
     <link rel="stylesheet" href="/src/css/main.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
@@ -17,7 +17,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
@@ -43,37 +43,36 @@
         </form>
     </div>
     </nav>
-    <div class="navbar navbar-expand-lg navbar-light bg-light"style="display:flex;flex-wrap:nowrap;justify-content:space-between;">
-        <div>
-            
+
+    <br>
+
+    <div class="container">
+        <form action="/articles" method="post">
+        <input type="hidden" name="author" value="<?= $user['name']?>">
+        <div class="row">
+            <div class="col-md-12">
+                <label>Заголовок</label>
+                <input type="text" class="form-control" name="title">
+            </div>
         </div>
-        <?php if (!isset($user)): ?>
-            <div>
-                <a href="/login">Войти</a>
-                <a href="/register">Регистрация</a>
+        <div class="row">
+            <div class="col-md-12">
+                <label>Статья</label>
+                <textarea class="form-control" name="body" rows="8"></textarea>
             </div>
-        <?php endif ?>
-        <?php if (isset($user)): ?>
-            <div>
-                <span><?= $user['name'] ?></a>
-                <a href="/logout">Выйти</a>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label>Хэштэги</label>
+                <input type="text" name="tags" class="form-control">
             </div>
-        <?php endif ?>
+        </div>
+        <br>
+        <div class="col-md-6">
+            <input type="submit" class="btn btn-primary" value="Опубликовать">
+        </div>
+        
+        </form>
     </div>
-    <?php if (isset($user)): ?>
-        <div class="alert alert-success" style="display:flex;justify-content:space-between">
-            <span><?= $message ?></span>
-            <span class="alert-close">&times</span>
-        </div>
-    <?php endif ?>
-    
-    <ul>
-        <li><a href="/users">Пользователи</a></li>
-        <li><a href="/articles">Статьи</a></li>
-        <li><a href="/about">О нас </a></li>
-    </ul>
-    
-    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Delectus qui harum odit libero rem repellendus necessitatibus saepe, reprehenderit, ea, ipsum placeat explicabo? Nihil dolorum iusto ex dolore, dicta iure ab.</p>
-    
 </body>
 </html>
