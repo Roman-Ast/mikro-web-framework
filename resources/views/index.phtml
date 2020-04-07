@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main page</title>
-    <link rel="stylesheet" href="<?=_DIR_ . 'css/main.css'?>">
+    <link rel="stylesheet" href="/src/css/main.css">
 </head>
 <body>
+    <div style="width:100%;height:80px;border:1px solid #111;display:flex;flex-wrap:nowrap;justify-content:space-between;">
+        <div>
+            
+        </div>
+        <?php if (!isset($user)): ?>
+            <div>
+                <a href="/login">Войти</a>
+                <a href="/register">Регистрация</a>
+            </div>
+        <?php endif ?>
+        <?php if (isset($user)): ?>
+            <div>
+                <span><?= $user['name'] ?></a>
+                <a href="/logout">Выйти</a>
+            </div>
+        <?php endif ?>
+    </div>
+    <?php if (isset($user)): ?>
+        <?= $message ?>
+    <?php endif ?>
+    
     <h1 class="main-header">Главная страница Вашего приложения</h1>
     <a href="/users">Пользователи</a>
     <a href="/articles">Статьи</a>

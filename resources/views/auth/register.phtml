@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма регистрации</title>
+    <link rel="stylesheet" href="/src/css/main.css">
+</head>
+    <body>
+    <a href="/">Главная</a>
+        <div style="display:flex;justify-content:center">
+            <h3>Форма регистрации</h3>
+        </div>
+        <form action="/users" method="post" enctype="multipart/form-data">
+        <div style="display:flex;flex-direction:column;align-items:stretch;justify-content:center;border:1px solid #bbb;width:40%;margin: 20px auto;">
+            
+            <label><b>Email</b></label>
+            <input type="text" name="user[email]" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
+            <?php if (isset($errors['email'])) : ?>
+                <div style="color: red"><?= $errors['email'] ?></div>
+            <?php endif ?>
+
+            <label>Имя</label>
+            <input type="text" name="user[name]" value="<?= htmlspecialchars($user['name'] ?? '') ?>">
+            <?php if (isset($errors['name'])) : ?>
+                <div style="color: red"><?= $errors['name'] ?></div>
+            <?php endif ?>
+ 
+            <label>Аватар</label>
+            <input type="file" name="user[avatar]">
+            <?php if (isset($errors['avatar'])) : ?>
+                <div style="color: red"><?= $errors['avatar'] ?></div>
+            <?php endif ?>
+            
+            <label>Пароль</label>
+            <input type="password" name="user[password]" value="">
+            <?php if (isset($errors['password'])) : ?>
+                <div style="color: red"><?= $errors['password'] ?></div>
+            <?php endif ?>
+            
+            <label>Подтверждение пароля</label>
+            <input type="password" name="user[password_confirmation]" value="">
+            <?php if (isset($errors['password_confirmation'])) : ?>
+                <div style="color: red"><?= $errors['password_confirmation'] ?></div>
+            <?php endif ?>
+            <button type="submit">Зарегестрироваться</button>
+        </div>
+        </form>
+    </body>
+</html>

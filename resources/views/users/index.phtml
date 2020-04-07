@@ -1,11 +1,10 @@
 <h1>Show all users</h1>
 
-<a href="users/new">Create new user</a>
+<a href="/">Главная</a>
 <ul>
     <?php foreach ($users as $user): ?>
         <li>
             <div style="">
-            <p><?= $_SERVER['DOCUMENT_ROOT'].'/src/storage/'.$user['avatar'] ?></p>
                 <a href="/users/<?= $user['id']?>"><?= $user['name'] ?></a>
                 <div style="width:70px;"><img src="<?= '/src/storage/'.$user['avatar'] ?>" style="width:100%;height:auto;"></div>
             </div>

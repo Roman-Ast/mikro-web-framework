@@ -14,8 +14,28 @@ $DBusers = new DBimmitation\Users();
 
 //GET
 $app->get('/', function () {
+    ini_set('session.gc_maxlifetime', 86400);
+    ini_set('session.cookie_lifetime', 86400);
+    session_start();
+    if (isset($_SESSION['user'])) {
+        
+        return response(render('index', [
+            'user' => $_SESSION['user'], 
+            'message' => $_SESSION['flash_message']
+        ]));
+    }
     return response(render('index'));
+    
 });
+
+$app->get('/login', function () {
+    return response(render('auth/login'));
+});
+
+$app->get('/register', function () {
+    return response(render('auth/register'));
+});
+
 
 $app->get('/about', function () {
     return response(
@@ -25,15 +45,8 @@ $app->get('/about', function () {
     );
 });
 
-$app->get('/users/new', function ($meta, $params, $attributes) {
-    return response(
-        render('users/create', ['errors' => [], 'user' => []])
-    );
-});
-
 $app->get('/users', function ($params) use($DBusers) {
     $users = $DBusers->getAllUsers();
-    
     return response(
         render('users/index', ['users' => $users])
     );
@@ -41,21 +54,17 @@ $app->get('/users', function ($params) use($DBusers) {
 
 $app->get('/users/:id', function ($meta, $params, $attributes) use($DBusers) {
     $users = $DBusers->getAllUsers();
-    $user = array_filter($users, function($user) use($attributes) {
+    $user = array_reduce($users, function($acc, $user) use($attributes) {
         if ($user['id'] == $attributes['id']) {
-            return $user;
+            $acc = $user;
+            return $acc;
         }
-    });
-    //var_dump($user);
+        return $acc;
+    }, null);
+    
     return response(render('users/show', ['user' => $user]));
 });
-$app->get('/users/:userId/articles/:id', function ($params, $arguments) {
-    return render('articles/show', [
-        'userId' => $arguments['userId'],
-        'articleId' => $arguments['id']
-        ]
-    );
-});
+
 $app->get('/articles', function ($params) {
     return render('articles/index');
 });
@@ -64,12 +73,27 @@ $app->get('/articles/:id', function ($params, $arguments) {
     return render('articles/show', ['articleId' => $arguments['id']]);
 });
 
+$app->get('/logout', function ($params, $arguments) {
+    session_start();
+    session_destroy();
+    return response()->redirect('/');
+});
 
 //POST 
 $app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
     $user = $params['user'];
     $errors = [];
-    
+
+    //check repeating email
+    $users = $DBusers->getAllUsers();
+    foreach ($users as $item) {
+        if ($user['email'] === $item['email']) {
+            $errors['email'] = 'Такой пользователь уже зарегестрирован';
+            return response(render('auth/register', ['user' => $user, 'errors' => $errors]))
+            ->withStatus(422);
+        }
+    }
+
     if (!$user['email']) {
         $errors['email'] = "Email can't be blank";
     } else if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
@@ -85,21 +109,55 @@ $app->post('/users', function ($meta, $params, $attributes) use($DBusers) {
     } 
 
     //file uploading
+    if (!$user['avatar']) {
+
+    }
     $path = FilesUpload::upload('user', 'avatar', 'images/user_avatars');
+    
     if (!$path) {
-        $errors['avatar'] = 'Something went wrong, try later...';
+        $user['avatar'] = 'images/user_avatars/default-user.png';
     } else {
         $user['avatar'] = $path;
     }
-    
+
     if (empty($errors)) {
         $DBusers->add($user);
-        return response()->redirect('/users');
+        session_start();
+        $_SESSION['user'] = $user;
+        $_SESSION['flash_message'] = "Добро пожаловать, Вы вошли как " . $user['name'];
+        return response()->redirect('/');
     } else {
-        return response(render('users/create', ['user' => $user, 'errors' => $errors]))
+        return response(render('auth/register', ['user' => $user, 'errors' => $errors]))
             ->withStatus(422);
     }
 });
+
+$app->post('/login', function ($meta, $params, $attributes) use($DBusers) {
+    $email = $params['email'];
+    $pass = $params['password'];
+    $errors = [];
+
+    $users = $DBusers->getAllUsers();
+    $authenticatedUser = array_reduce($users, function($acc, $user) use($email, $pass) {
+        if ($user['email'] === $email && $user['password'] === $pass) {
+            $acc = $user;
+            return $acc;
+        }
+        return $acc;
+    }, null);
+    
+    if ($authenticatedUser) {
+        session_start();
+        $_SESSION['user'] = $authenticatedUser;
+        $_SESSION['flash_message'] = "Добро пожаловать, Вы вошли как {$authenticatedUser['name']}";
+        return response()->redirect('/');
+    } else {
+        $errors['auth'] = 'Введены неверные логин и/или пароль';
+        return response(render('auth/login', ['errors' => $errors]))->withStatus(422);
+    }
+    
+});
+
 
 
 $app->run();

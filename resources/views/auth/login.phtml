@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form method="post" action="/login">
+    <div style="width:40%;margin: 20px auto;display:flex;flex-direction:column;justify-content:center;">
+        <label>Email</label>
+        <input type="email" name="email">
+        <label>Пароль</label>
+        <input type="password" name="password">
+        <input type="submit" value="Войти">
+        <?php if (isset($errors)) : ?>
+            <div style="color:red;">
+                <?= $errors['auth'] ?>
+            </div>
+        <?php endif ?>
+    </div>
+    <form>
+</body>
+</html>
